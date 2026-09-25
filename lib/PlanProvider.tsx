@@ -5,8 +5,7 @@ import {
 } from "react"
 
 import type { ReactNode } from "react";
-import type { Workout } from "./types"
-import { info } from "console";
+import type { Workout } from "./types";
 
 export const max_plan = 5;
 
@@ -19,22 +18,25 @@ export interface ToastItem {
 
 interface PlanContextValue {
     plan: Workout[];
-    saved: Workout[]
-    done: Record<string, boolean>
+    saved: Workout[];
+
+    done: Record<string, boolean>;
     addToPlan: (workout: Workout) => void;
+
+
     saveForLater: (workout: Workout) => void;
     removeFromPlan: (id: string | number) => void;
 
-    removeFromSaved: (id: string | number) => void;
 
-    idInPlan: (id: string | number) => void
-    toggleDone: (id: string | number) => void
+    removeFromSaved: (id: string | number) => void
 
-    isInPlan: (id: string | number) => void
-    isSaved: (id: string | number) => boolean
+    toggleDone: (id: string | number) => void;
+
+
+    isInPlan: (id: string | number) => boolean
+    isSaved: (id: string | number) => boolean;
+
     notify: (message: string, type?: ToastType) => void
-
-
 }
 
 const PlanContext = createContext<PlanContextValue | null>(null)
@@ -64,12 +66,16 @@ function PlanProvider({ children }: { children: ReactNode }) {
 
 
     useEffect(() => {
-        if (!hydrated) return
-        window.localStorage.setItem("fitlog-plan", JSON.stringify(plan));
-        window.localStorage.setItem("fitlog-saved", JSON.stringify(saved))
-        window.localStorage.setItem("fitlog-done", JSON.stringify(done))
 
-    }, [plan, saved, done, hydrated])
+        setPlan(load("fitlog-plan", []));
+
+        setSaved(load("fitlog-saved", []));
+
+        setDone(load("fitlog-done", {}));
+
+        setHydrated(true);
+
+    }, []);
 
 
     const notify = useCallback((message: string, type: ToastType = "success") => {
@@ -142,7 +148,54 @@ function PlanProvider({ children }: { children: ReactNode }) {
 
     const value = useMemo(
         () => ({
-            plan, saved, done, addToPlan, saveForLater, removeFromPlan, toggleDone, isInPlan, isSaved, notify
-        }), [plan, saved, done, addToPlan, saveForLater, removeFromPlan, removeFromSaved, toggleDone, isInPlan, isSaved, notify]
+            plan,
+            saved,
+            done,
+            addToPlan,
+            saveForLater,
+            removeFromPlan,
+            removeFromSaved,
+            toggleDone,
+            isInPlan,
+            isSaved,
+            notify,
+        }),
+        [
+            plan, saved,done,
+            addToPlan,
+            saveForLater,
+            removeFromPlan, removeFromSaved, toggleDone, isInPlan, isSaved, notify,
+        ]
+    );
+
+    return (
+        <PlanContext.Provider value={value}>
+            {children}
+
+            <div
+                className="toast toast-end toast-bottom z-100"
+            >
+                {
+                    toasts.map((t) => (
+                        <div
+                            key={t.id}
+                            className={
+                                `alert ${t.type === "success" ? "alert-success text-primary-content" : t.type === "error" ? "alert-error" : "alert-info"} shadow-lg `
+                            }
+                        >
+                            <span className="text-sm font-medium">{t.message}</span>
+                        </div>
+                    ))
+                }
+            </div>
+        </PlanContext.Provider>
     )
+}
+
+export function usePlan():
+    PlanContextValue {
+    const ctx = useContext(PlanContext)
+    if (!ctx) throw new Error("usePlan must be used within <PlanProvider")
+
+    return ctx
 }
