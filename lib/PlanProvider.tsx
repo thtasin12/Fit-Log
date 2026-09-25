@@ -55,7 +55,7 @@ function load<T>(storageKey: string, fallback: T): T {
     }
 }
 
-function PlanProvider({ children }: { children: ReactNode }) {
+export function PlanProvider({ children }: { children: ReactNode }) {
     const [plan, setPlan] = useState<Workout[]>([])
     const [saved, setSaved] = useState<Workout[]>([])
 
