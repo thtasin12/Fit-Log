@@ -1,5 +1,5 @@
 export interface Workout {
-    id: string | number;
+    id: number;
     exerciseName: string;
     image: string;
     bodyPart: string[];
@@ -11,6 +11,7 @@ export interface Workout {
     difficulty: string;
     sets: number | string;
     reps: string;
+    rating: number
 
 }
 
