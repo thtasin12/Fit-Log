@@ -1,8 +1,15 @@
 import Hero from "@/components/Hero";
+import LibrarySection from "@/components/LibrarySection";
 
 
-export default function Home() {
+import { getWorkouts } from "@/lib/api";
+
+export default async function HomePage() {
+  const workouts = await getWorkouts();
   return (
-     <Hero />
+    <>
+      <Hero />
+      <LibrarySection workouts={workouts} />
+    </>
   );
 }
